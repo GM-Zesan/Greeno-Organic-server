@@ -10,7 +10,6 @@ const port = process.env.PORT || 5000;
 app.use(cors());
 app.use(express.json());
 
-
 //verify token
 function verifyToken(req, res, next) {
     const authHeader = req.headers.authorization;
@@ -45,7 +44,9 @@ async function run() {
         // FOr using JWT
         app.post("/login", (req, res) => {
             const email = req.body;
-            const token = jwt.sign(email, process.env.ACCESS_TOKEN_SECRET, {expiresIn: "1d"});
+            const token = jwt.sign(email, process.env.ACCESS_TOKEN_SECRET, {
+                expiresIn: "1d",
+            });
             res.send({ token });
         });
 
@@ -81,8 +82,6 @@ async function run() {
             res.send(product);
         });
 
-
-
         //Post data to database
         //http://localhost:5000/fruit
         app.post("/fruit", async (req, res) => {
@@ -91,23 +90,52 @@ async function run() {
             res.send(result);
         });
 
-        //Update data of database
+        //decrease data of database
         //http://localhost:5000/fruit/id
         app.put("/fruit/:id", async (req, res) => {
             const id = req.params.id;
-            const getFruit = req.body;
-            console.log(getFruit);
-            const filter = { _id: ObjectId(id) };
-            const options = { upsert: true };
-            const updateFruit = {
-                $set: { ...getFruit },
-            };
-            const result = await organicCollection.updateOne(
-                filter,
-                updateFruit,
-                options
-            );
-            res.send(result);
+            const query = { _id: ObjectId(id) };
+            const product = await organicCollection.findOne(query);
+            console.log(product);
+            if (product) {
+                product.quantity = product.quantity - 1;
+                const filter = { _id: ObjectId(id) };
+                const options = { upsert: true };
+                const updateFruit = {
+                    $set: { ...product },
+                };
+                const result = await organicCollection.updateOne(
+                    filter,
+                    updateFruit,
+                    options
+                );
+                console.log(result);
+                res.send(result);
+            }
+        });
+
+        //Increase data of database
+        //http://localhost:5000/fruit/id
+        app.put("/increaseqnty/:id", async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const product = await organicCollection.findOne(query);
+            console.log(product);
+            if (product) {
+                product.quantity = product.quantity + req.body.quantity;
+                const filter = { _id: ObjectId(id) };
+                const options = { upsert: true };
+                const updateFruit = {
+                    $set: { ...product },
+                };
+                const result = await organicCollection.updateOne(
+                    filter,
+                    updateFruit,
+                    options
+                );
+                console.log(result);
+                res.send(result);
+            }
         });
 
         //Delete data from database
@@ -122,9 +150,6 @@ async function run() {
     }
 }
 run().catch(console.dir);
-
-
-
 
 app.get("/", (req, res) => {
     res.send("Running my server");
