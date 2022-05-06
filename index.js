@@ -41,7 +41,7 @@ async function run() {
             .db("organicFruit")
             .collection("fruits");
 
-        // FOr using JWT
+        // For using JWT
         app.post("/login", (req, res) => {
             const email = req.body;
             const token = jwt.sign(email, process.env.ACCESS_TOKEN_SECRET, {
@@ -59,7 +59,7 @@ async function run() {
             res.send(fruits);
         });
 
-        //my personal data
+        //personal data (Indevidually) by email
         app.get("/myproducts", verifyToken, async (req, res) => {
             const decodedEmail = req.decoded.email;
             const email = req.query.email;
@@ -74,7 +74,6 @@ async function run() {
         });
 
         //Load a single data for a perticular id
-        //http://localhost:5000/product/626e51b57fa5b9e49593f822
         app.get("/product/:id", async (req, res) => {
             const id = req.params.id;
             const query = { _id: ObjectId(id) };
@@ -83,15 +82,13 @@ async function run() {
         });
 
         //Post data to database
-        //http://localhost:5000/fruit
         app.post("/fruit", async (req, res) => {
             const getFruit = req.body;
             const result = await organicCollection.insertOne(getFruit);
             res.send(result);
         });
 
-        //decrease data of database
-        //http://localhost:5000/fruit/id
+        //decrease data(Quantity) of database
         app.put("/fruit/:id", async (req, res) => {
             const id = req.params.id;
             const query = { _id: ObjectId(id) };
@@ -114,8 +111,7 @@ async function run() {
             }
         });
 
-        //Increase data of database
-        //http://localhost:5000/fruit/id
+        //Increase data(Quantity) of database
         app.put("/increaseqnty/:id", async (req, res) => {
             const id = req.params.id;
             const query = { _id: ObjectId(id) };
