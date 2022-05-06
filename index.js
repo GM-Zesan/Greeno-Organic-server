@@ -88,54 +88,27 @@ async function run() {
             res.send(result);
         });
 
-        //decrease data(Quantity) of database
+        
+        //Update quntity
         app.put("/fruit/:id", async (req, res) => {
             const id = req.params.id;
-            const query = { _id: ObjectId(id) };
-            const product = await organicCollection.findOne(query);
-            console.log(product);
-            if (product) {
-                product.quantity = product.quantity - 1;
-                const filter = { _id: ObjectId(id) };
-                const options = { upsert: true };
-                const updateFruit = {
-                    $set: { ...product },
-                };
-                const result = await organicCollection.updateOne(
-                    filter,
-                    updateFruit,
-                    options
-                );
-                console.log(result);
-                res.send(result);
-            }
+            const filter = { _id: ObjectId(id) };
+            const newQuantity = req.body;
+            const options = { upsert: true };
+            const updateFruit = {
+                $set: { quantity: newQuantity.quantity },
+            };
+            const result = await organicCollection.updateOne(
+                filter,
+                updateFruit,
+                options
+            );
+            res.send(result);
         });
 
-        //Increase data(Quantity) of database
-        app.put("/increaseqnty/:id", async (req, res) => {
-            const id = req.params.id;
-            const query = { _id: ObjectId(id) };
-            const product = await organicCollection.findOne(query);
-            console.log(product);
-            if (product) {
-                product.quantity = product.quantity + req.body.quantity;
-                const filter = { _id: ObjectId(id) };
-                const options = { upsert: true };
-                const updateFruit = {
-                    $set: { ...product },
-                };
-                const result = await organicCollection.updateOne(
-                    filter,
-                    updateFruit,
-                    options
-                );
-                console.log(result);
-                res.send(result);
-            }
-        });
+
 
         //Delete data from database
-        //http://localhost:5000/fruit/id
         app.delete("/fruit/:id", async (req, res) => {
             const id = req.params.id;
             const query = { _id: ObjectId(id) };
